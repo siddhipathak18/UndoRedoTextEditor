@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undo-Redo Text Editor | Using Two Stacks</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Top Navigation Bar (Inspired by Municipal Complaint Webapp) -->
+    <nav class="navbar">
+        <div class="nav-brand">
+            <span class="nav-icon">📝</span>
+            <div class="nav-titles">
+                <h1>Undo-Redo Editor</h1>
+                <p>Using Two Stacks</p>
+            </div>
+        </div>
+        <div class="nav-status">
+            <span class="status-badge" id="navServerStatus">
+                <span class="status-dot online"></span>
+                <span id="navStatusText">C Backend: Online</span>
+            </span>
+        </div>
+    </nav>
+
+    <div class="app-container">
+        <!-- Dashboard Metric Cards -->
+        <section class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-icon">↶</span>
+                    <span class="metric-label">Undo Stack</span>
+                </div>
+                <div class="metric-value" id="undoCountDisplay">0</div>
+                <div class="metric-sub">States available to undo</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-icon">↷</span>
+                    <span class="metric-label">Redo Stack</span>
+                </div>
+                <div class="metric-value" id="redoCountDisplay">0</div>
+                <div class="metric-sub">States available to redo</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-icon">🔤</span>
+                    <span class="metric-label">Characters</span>
+                </div>
+                <div class="metric-value" id="textLengthDisplay">0</div>
+                <div class="metric-sub">Current document length</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-header">
+                    <span class="metric-icon">⚡</span>
+                    <span class="metric-label">Server</span>
+                </div>
+                <div class="metric-value status-online" id="serverStatusDisplay">Online</div>
+                <div class="metric-sub">localhost:8080 (Winsock)</div>
+            </div>
+        </section>
+
+        <!-- Main Editor Card -->
+        <main class="editor-card">
+            <!-- Action Toolbar -->
+            <div class="toolbar">
+                <div class="toolbar-group">
+                    <button id="btnUndo" class="btn btn-primary" title="Undo last action (Ctrl+Z)" disabled>
+                        <span class="icon">↶</span> Undo
+                    </button>
+                    <button id="btnRedo" class="btn btn-primary" title="Redo last undone action (Ctrl+Y)" disabled>
+                        <span class="icon">↷</span> Redo
+                    </button>
+                </div>
+
+                <div class="toolbar-group">
+                    <button id="btnSave" class="btn btn-success" title="Save document to data/document.txt (Ctrl+S)">
+                        <span class="icon">💾</span> Save
+                    </button>
+                    <button id="btnLoad" class="btn btn-info" title="Load document from data/document.txt">
+                        <span class="icon">📂</span> Load
+                    </button>
+                    <button id="btnClear" class="btn btn-warning" title="Clear entire document">
+                        <span class="icon">🗑</span> Clear
+                    </button>
+                </div>
+            </div>
+
+            <!-- Document Textarea Area -->
+            <div class="editor-wrapper">
+                <div class="editor-header">
+                    <label for="editorArea"><strong>Document Content:</strong></label>
+                    <span class="shortcut-hint">Shortcuts: <code>Ctrl+Z</code> Undo | <code>Ctrl+Y</code> Redo | <code>Ctrl+S</code> Save</span>
+                </div>
+                <textarea id="editorArea" autocomplete="off" placeholder="Type or edit your text directly here..."></textarea>
+                
+                <div class="editor-footer">
+                    <button id="btnApply" class="btn btn-apply" title="Save changes as a new undoable state">
+                        <span class="icon">✓</span> Apply Changes
+                    </button>
+                    <span class="apply-hint">Click "Apply Changes" to record your edits in the Undo Stack.</span>
+                </div>
+            </div>
+        </main>
+
+        <!-- Auxiliary Operations Card (Delete from End & Quick Insert) -->
+        <section class="operations-card">
+            <div class="operations-grid">
+                <div class="op-box">
+                    <h3>✂️ Delete from End</h3>
+                    <p class="op-desc">Remove a specific number of characters from the end of the text.</p>
+                    <div class="input-action-group">
+                        <input type="number" id="deleteCount" min="1" max="5000" value="2">
+                        <button id="btnDelete" class="btn btn-danger">Delete</button>
+                    </div>
+                </div>
+
+                <div class="op-box">
+                    <h3>➕ Quick Append</h3>
+                    <p class="op-desc">Quickly append text snippet to current document.</p>
+                    <div class="input-action-group">
+                        <input type="text" id="insertInput" placeholder="Enter text to append..." autocomplete="off">
+                        <button id="btnInsert" class="btn btn-action">Append</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- DSA Concept Information Box -->
+        <footer class="dsa-info-box">
+            <h3>DSA Concept: Two-Stack Undo/Redo Editor</h3>
+            <ul>
+                <li><strong>Modification (Insert / Delete / Apply):</strong> Pushes active text snapshot to <code>Undo Stack</code>, updates buffer, and <strong>clears <code>Redo Stack</code></strong>.</li>
+                <li><strong>Undo:</strong> Moves active text snapshot to <code>Redo Stack</code> and pops previous state from <code>Undo Stack</code>.</li>
+                <li><strong>Redo:</strong> Moves active text snapshot to <code>Undo Stack</code> and pops state from <code>Redo Stack</code>.</li>
+            </ul>
+        </footer>
+    </div>
+
+    <!-- Floating Toast Notification Container -->
+    <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
